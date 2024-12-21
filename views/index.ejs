@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Òm Òm</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Dongle&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>Thutrang và Ducnhat 😾</h1>
+    </header>
+
+    <main class="gallery-container">
+      <% if (images && images.length > 0) { %>
+      <div class="gallery-grid">
+        <% images.forEach(function(image) { %>
+        <div
+          class="gallery-item"
+          onclick="openImagePreview('/uploads/<%= image %>')"
+        >
+          <div class="image-wrapper">
+            <img
+              class="lazy"
+              data-src="/uploads/<%= image %>"
+              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+              alt="<%= image %>"
+            />
+            <div class="loading-placeholder"></div>
+          </div>
+        </div>
+        <% }); %>
+      </div>
+      <% } else { %>
+      <div class="no-images">
+        <p>Chưa có ảnh nào được upload.</p>
+        <a href="/upload" class="upload-btn">Upload ảnh ngay</a>
+      </div>
+      <% } %>
+    </main>
+
+    <!-- Image Preview Modal -->
+    <div id="imagePreviewModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <img id="previewImage" src="" alt="Preview" />
+      </div>
+    </div>
+
+    <!-- Upload Button -->
+    <a href="/upload" class="upload-floating-btn">
+      <i class="fas fa-upload"></i>
+    </a>
+
+    <!-- Back to top button -->
+    <button id="backToTop" class="back-to-top">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Lazy loading implementation
+        let lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
+
+        if ("IntersectionObserver" in window) {
+          let lazyImageObserver = new IntersectionObserver(function (
+            entries,
+            observer
+          ) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                let lazyImage = entry.target;
+                lazyImage.src = lazyImage.dataset.src;
+                lazyImage.classList.remove("lazy");
+                lazyImage.classList.add("loaded");
+                lazyImageObserver.unobserve(lazyImage);
+              }
+            });
+          });
+
+          lazyImages.forEach(function (lazyImage) {
+            lazyImageObserver.observe(lazyImage);
+          });
+        }
+
+        // Back to top functionality
+        const backToTopButton = document.getElementById("backToTop");
+
+        window.addEventListener("scroll", () => {
+          if (window.pageYOffset > 300) {
+            backToTopButton.classList.add("show");
+          } else {
+            backToTopButton.classList.remove("show");
+          }
+        });
+
+        backToTopButton.addEventListener("click", () => {
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        });
+      });
+
+      // Image Preview Modal Functions
+      const modal = document.getElementById("imagePreviewModal");
+      const previewImage = document.getElementById("previewImage");
+      const closeBtn = document.getElementsByClassName("close-modal")[0];
+
+      function openImagePreview(imageSrc) {
+        modal.style.display = "flex";
+        previewImage.src = imageSrc;
+        document.body.style.overflow = "hidden";
+      }
+
+      closeBtn.onclick = function () {
+        modal.style.display = "none";
+        document.body.style.overflow = "auto";
+      };
+
+      modal.onclick = function (event) {
+        if (event.target === modal) {
+          modal.style.display = "none";
+          document.body.style.overflow = "auto";
+        }
+      };
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && modal.style.display === "flex") {
+          modal.style.display = "none";
+          document.body.style.overflow = "auto";
+        }
+      });
+    </script>
+  </body>
+</html>

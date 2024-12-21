@@ -1,0 +1,511 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Dongle', sans-serif;
+  line-height: 1.3; /* Điều chỉnh line-height vì font Dongle có khoảng cách riêng */
+  padding: 20px;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  font-size: 20px; /* Tăng font-size mặc định vì Dongle thường nhỏ hơn */
+}
+
+header {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+h1 {
+  font-size: 3em;
+  color: #ffffff;
+  margin-bottom: 20px;
+}
+
+nav {
+  margin-top: 20px;
+}
+
+.nav-link {
+  margin: 0 10px;
+  text-decoration: none;
+  color: #ffffff;
+  padding: 10px 20px;
+  border: 2px solid #3498db;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  background-color: #3498db;
+  color: #ffffff;
+}
+
+/* Upload Zone Styles */
+.upload-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-size: 30px;
+}
+
+.drop-zone {
+  border: 3px dashed #3498db;
+  border-radius: 15px;
+  padding: 60px 40px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #2d2d2d;
+}
+
+.drop-zone:hover,
+.drop-zone-active {
+  border-color: #3498db;
+  background-color: #363636;
+}
+
+.drop-zone-text {
+  color: #ffffff;
+}
+
+.upload-icon {
+  font-size: 48px;
+  margin-bottom: 20px;
+  display: block;
+  color: #3498db;
+}
+
+.drop-zone-text p {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.drop-zone-hint {
+  color: #b3b3b3;
+  font-size: 18px;
+}
+
+/* Gallery Styles */
+.gallery-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+.gallery-item {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  background-color: #2d2d2d;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: all 0.3s ease;
+  filter: brightness(0.8);
+}
+
+.gallery-item img.loaded {
+  opacity: 1;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.image-overlay i {
+  color: white;
+  font-size: 24px;
+  transform: scale(0.8);
+  transition: transform 0.3s ease;
+}
+
+/* Hover effects */
+.gallery-item:hover {
+  transform: scale(1.03);
+}
+
+.gallery-item:hover img {
+  filter: brightness(1);
+}
+
+.gallery-item:hover .image-overlay {
+  opacity: 1;
+}
+
+.gallery-item:hover .image-overlay i {
+  transform: scale(1);
+}
+
+/* No Images Message */
+.no-images {
+  text-align: center;
+  padding: 50px;
+  background-color: #2d2d2d;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.no-images p {
+  font-size: 22px;
+  color: #b3b3b3;
+  margin-bottom: 20px;
+}
+
+.upload-btn {
+  display: inline-block;
+  padding: 12px 30px;
+  background-color: #3498db;
+  color: white;
+  text-decoration: none;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+}
+
+.upload-btn:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+}
+
+/* Loading Animation */
+.loading-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #2d2d2d 25%, #363636 50%, #2d2d2d 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite linear;
+}
+
+.gallery-item img.loaded + .loading-placeholder {
+  display: none;
+}
+
+@keyframes loading {
+  0% {
+      background-position: 200% 0;
+  }
+  100% {
+      background-position: -200% 0;
+  }
+}
+
+/* Image Preview Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 1001;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  position: relative;
+  max-width: 90%;
+  max-height: 90vh;
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content img {
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+.close-modal {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  color: #fff;
+  font-size: 35px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 1002;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.close-modal:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
+}
+
+@keyframes modalFadeIn {
+  from {
+      opacity: 0;
+      transform: scale(0.9);
+  }
+  to {
+      opacity: 1;
+      transform: scale(1);
+  }
+}
+
+/* Back to Top Button */
+.back-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.back-to-top.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.back-to-top:hover {
+  background-color: #2980b9;
+  transform: translateY(-3px);
+}
+
+.back-to-top i {
+  font-size: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .gallery-container {
+      max-width: 1000px;
+  }
+}
+
+@media (max-width: 768px) {
+  .gallery-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+  }
+
+  .drop-zone {
+      padding: 40px 20px;
+  }
+
+  .nav-link {
+      padding: 8px 16px;
+      font-size: 20px;
+  }
+
+  .back-to-top {
+      bottom: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+  }
+
+  .modal-content {
+      max-width: 95%;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-grid {
+      grid-template-columns: 1fr;
+  }
+
+  header h1 {
+      font-size: 2em;
+  }
+
+  .nav-link {
+      display: inline-block;
+      margin-bottom: 10px;
+  }
+
+  .drop-zone-text p {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  .close-modal {
+      top: -35px;
+      right: 0;
+      width: 35px;
+      height: 35px;
+      font-size: 28px;
+  }
+}
+
+/* Floating Upload Button */
+.upload-floating-btn {
+  position: fixed;
+  bottom: 100px; /* Đặt phía trên nút back to top */
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  text-decoration: none;
+}
+
+.upload-floating-btn:hover {
+  background-color: #2980b9;
+  transform: translateY(-3px);
+}
+
+.upload-floating-btn i {
+  font-size: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .upload-floating-btn {
+      bottom: 80px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+  }
+}
+/* Mã CSS cho phần nhập mật khẩu */
+#password-container {
+  background-color: #2d2d2d;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+#password-container label {
+  display: block;
+  font-size: 18px;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+#password-container input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border: 2px solid #3498db;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+#password-container input[type="password"]:focus {
+  border-color: #2980b9;
+  outline: none;
+}
+
+#password-container button {
+  background-color: #3498db;
+  color: white;
+  font-size: 18px;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  cursor: pointer;
+  margin-top: 20px;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+#password-container button:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+}
+
+#password-error {
+  display: none;
+  margin-top: 10px;
+  font-size: 25px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  #password-container {
+    padding: 15px;
+  }
+
+  #password-container label {
+    font-size: 16px;
+  }
+
+  #password-container input[type="password"] {
+    font-size: 14px;
+  }
+
+  #password-container button {
+    font-size: 16px;
+    padding: 10px;
+  }
+}

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Upload</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Dongle&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>Upload</h1>
+      <nav>
+        <a href="/" class="nav-link">Home</a>
+      </nav>
+    </header>
+
+    <main class="upload-container">
+      <!-- Form nhập mật khẩu -->
+      <div id="password-container">
+        <label for="password"  ><p style="font-size: large;">Nhập mật khẩu để tiếp tục:</p></label>
+        <input type="password" id="password" />
+        <button id="password-submit">Xác nhận</button>
+        <span id="password-error" style="display: none;">Mật khẩu không chính xác!</span>
+      </div>
+
+      <!-- Khu vực tải lên -->
+      <div class="drop-zone" id="dropZone" style="display: none;">
+        <div class="drop-zone-text">
+          <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+          <p>Kéo thả ảnh vào đây hoặc click để chọn ảnh</p>
+          <span class="drop-zone-hint"
+            >Hỗ trợ: JPG, PNG, GIF (Tối đa 50MB)</span
+          >
+        </div>
+        <input
+          type="file"
+          id="fileInput"
+          name="images"
+          accept="image/*"
+          multiple
+          hidden
+        />
+      </div>
+    </main>
+
+    <script>
+      class UploadHandler {
+        static init() {
+          this.dropZone = document.getElementById("dropZone");
+          this.fileInput = document.getElementById("fileInput");
+          this.passwordContainer = document.getElementById("password-container");
+          this.passwordInput = document.getElementById("password");
+          this.passwordSubmit = document.getElementById("password-submit");
+          this.passwordError = document.getElementById("password-error");
+
+          this.initializeEventListeners();
+        }
+
+        static initializeEventListeners() {
+          // Sự kiện kiểm tra mật khẩu
+          this.passwordSubmit.addEventListener("click", () => {
+            this.checkPassword();
+          });
+
+          // Các sự kiện drag & drop
+          ["dragenter", "dragover", "dragleave", "drop"].forEach(
+            (eventName) => {
+              this.dropZone.addEventListener(
+                eventName,
+                this.preventDefaults,
+                false
+              );
+              document.body.addEventListener(
+                eventName,
+                this.preventDefaults,
+                false
+              );
+            }
+          );
+
+          // Các sự kiện highlight vùng drop zone
+          ["dragenter", "dragover"].forEach((eventName) => {
+            this.dropZone.addEventListener(eventName, () => {
+              this.dropZone.classList.add("drop-zone-active");
+            });
+          });
+
+          ["dragleave", "drop"].forEach((eventName) => {
+            this.dropZone.addEventListener(eventName, () => {
+              this.dropZone.classList.remove("drop-zone-active");
+            });
+          });
+
+          // Handle dropped files
+          this.dropZone.addEventListener("drop", (e) => {
+            const files = e.dataTransfer.files;
+            this.handleFiles(files);
+          });
+
+          // Handle selected files
+          this.dropZone.addEventListener("click", () => {
+            this.fileInput.click();
+          });
+
+          this.fileInput.addEventListener("change", (e) => {
+            const files = e.target.files;
+            this.handleFiles(files);
+          });
+        }
+
+        static preventDefaults(e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        static handleFiles(files) {
+          if (!files?.length) return;
+
+          const formData = new FormData();
+          let isValid = true;
+
+          Array.from(files).forEach((file) => {
+            if (!file.type.startsWith("image/")) {
+              alert(`File "${file.name}" không phải là ảnh.`);
+              isValid = false;
+              return;
+            }
+
+            if (file.size > 50 * 1024 * 1024) {
+              // 50MB
+              alert(`File "${file.name}" vượt quá giới hạn 50MB.`);
+              isValid = false;
+              return;
+            }
+
+            formData.append("images", file);
+          });
+
+          if (isValid && formData.has("images")) {
+            this.uploadFiles(formData);
+          }
+        }
+
+        static async uploadFiles(formData) {
+          try {
+            const response = await fetch("/api/upload", {
+              method: "POST",
+              body: formData,
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              alert("Upload thành công!");
+              setTimeout(() => {
+                window.location.href = "/";
+              }, 1000);
+            } else {
+              throw new Error(data.message || "Upload thất bại");
+            }
+          } catch (error) {
+            console.error("Error:", error);
+            alert(error.message || "Có lỗi xảy ra khi upload");
+          }
+        }
+
+        static checkPassword() {
+          const password = this.passwordInput.value;
+          const correctPassword = "310803"; // Đặt mật khẩu đúng ở đây
+
+          if (password === correctPassword) {
+            this.passwordContainer.style.display = "none";
+            this.dropZone.style.display = "block";
+          } else {
+            this.passwordError.style.display = "inline";
+          }
+        }
+      }
+
+      // Initialize upload handler when the page loads
+      document.addEventListener("DOMContentLoaded", () => {
+        UploadHandler.init();
+      });
+    </script>
+  </body>
+</html>
